@@ -5,8 +5,16 @@ class FCM:
         self.text = text
         self.k = k
         self.alpha = alpha
+        self.alphabet = set()
+        self.n_appearances = {}
 
 
+    def getAlphabet(self):
+        return self.alphabet
+
+    def getAppearances(self):
+        return self.n_appearances
+        
     def readFile(self, text):
         #reads a .txt file
         file = open(text, "r")
@@ -26,14 +34,14 @@ class FCM:
 
         return alphabet, prio
     
-    def calcEntropy(self, n_appearances, cols):
+    def calcEntropy(self, cols):
         H_dict = {}
         Probs = {}
-        for c in n_appearances.keys():
+        for c in self.n_appearances.keys():
             Hc = 0
             Probs[c] = {}        
-            for s in n_appearances[c].keys():
-                prob = self.calcProb(n_appearances, c, s, cols)
+            for s in self.n_appearances[c].keys():
+                prob = self.calcProb(c, s, cols)
                 Probs[c][s] = prob
 
                 Hc += -prob*math.log2(prob)
@@ -42,8 +50,8 @@ class FCM:
 
         return H_dict, Probs
     
-    def calcProb(self, n_appearances, c, e, cols):
-        prob = (n_appearances[c][e]+self.alpha) / (sum(n_appearances[c].values()) + (self.alpha*len(cols)))
+    def calcProb(self, c, e, cols):
+        prob = (self.n_appearances[c][e]+self.alpha) / (sum(self.n_appearances[c].values()) + (self.alpha*len(cols)))
         return prob
 
 
@@ -51,31 +59,31 @@ class FCM:
         fileContent = self.readFile(self.text)
         print("file size: ", len(fileContent))
         cols, prio = list(self.createAlphabet(fileContent))
+        self.alphabet = cols
 
-        n_appearances = {}
         #Make table(Dictionary)
         for i in range(self.k, len(fileContent[self.k:])+1):
             c = fileContent[i-self.k:i]
             e = fileContent[i]
 
             #Update table
-            if c not in n_appearances:
-                n_appearances[c] = {}
+            if c not in self.n_appearances:
+                self.n_appearances[c] = {}
                 
-            if e not in n_appearances[c]:
-                n_appearances[c][e] = 1
+            if e not in self.n_appearances[c]:
+                self.n_appearances[c][e] = 1
 
             else:
-                n_appearances[c][e] += 1
+                self.n_appearances[c][e] += 1
 
         #Entropy of each context
-        H_dict, Probs = self.calcEntropy(n_appearances, cols)          #key - context; value - H
+        H_dict, Probs = self.calcEntropy(cols)          #key - context; value - H
 
         #AVG Entropy
         entropy_sum = 0
-        total_sum = sum(sum(i.values()) for i in n_appearances.values())
+        total_sum = sum(sum(i.values()) for i in self.n_appearances.values())
         for c in H_dict:
-            Pc = sum(n_appearances[c].values()) / total_sum
+            Pc = sum(self.n_appearances[c].values()) / total_sum
             entropy_sum += H_dict[c] * Pc
 
         print("Value of entropy ", round(entropy_sum, 2), " bits/symbol")

@@ -3,11 +3,13 @@ import math
 
 
 class Lang:
-    def __init__(self, target, k, alpha, probs):
+    def __init__(self, target, k, alpha, probs, ref_alphabet, ref_appearances):
         self.target = target
         self.k = k
         self.alpha = alpha
         self.probs = probs
+        self.ref_alphabet = ref_alphabet
+        self.ref_appearances = ref_appearances
 
     def run(self):
         fileContent = FCM.readFile(self, self.target)
@@ -25,6 +27,16 @@ class Lang:
                         
                     final_dict[c][e] = self.probs[c][e]
                     final_sum -= math.log2(self.probs[c][e])
+
+                # Symbol not in reference text
+                else:
+                    p =  self.alpha / (sum(self.ref_appearances[c].values()) + (self.alpha*len(self.ref_alphabet)))
+                    final_sum -= math.log2(p)
+                
+            else:
+                p =  self.alpha / (self.alpha*len(self.ref_alphabet))
+                final_sum -= math.log2(p)
+
 
         print("BITS?: ",round(final_sum, 2))
         print("LEN DICT: ",len(final_dict))

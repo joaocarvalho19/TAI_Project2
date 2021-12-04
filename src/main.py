@@ -99,7 +99,7 @@ def main(example, k, alpha):
     print("Time elapsed: ",end-begin)
 
     # Lang
-    lang = Lang("target_file/test.txt", k, alpha, probs)
+    lang = Lang("target_file/test.txt", k, alpha, probs, fcm.getAlphabet(), fcm.getAppearances())
     lang.run()
 
     # Generator
