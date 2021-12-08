@@ -51,7 +51,7 @@ class FCM:
         return H_dict, Probs
     
     def calcProb(self, c, e, cols):
-        prob = (self.n_appearances[c][e]+self.alpha) / (sum(self.n_appearances[c].values()) + (self.alpha*len(cols)))
+        prob = (self.n_appearances[c][e]+self.alpha) / (sum(self.n_appearances[c].values()) + (self.alpha*len(self.n_appearances[c])))
         return prob
 
 
