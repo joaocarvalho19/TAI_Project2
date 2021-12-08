@@ -4,7 +4,7 @@ import math
 from sys import argv
 from fcm import FCM
 from lang import Lang
-
+import os
 
 def generator(dictionary, prior, lenText):
     # checks if prior is valid
@@ -85,7 +85,28 @@ def sorting (values): #returns the position chosen
 
     return len(values)-1
 
+def learnLanguage(k, alpha):
+    ref_path = 'refs/'
+    files = os.listdir(ref_path)
+    fcm = {}
+    for file in files:
+        if os.path.isfile(os.path.join(ref_path, file)):
+            fcm = FCM(ref_path+file, k, alpha).run()
+            writeFCM(file, fcm)
 
+def writeFCM(file, fcm):
+    with open("fcm/"+file, 'w')as f:
+        print(fcm, file=f)
+
+def readFCM(file):
+    with open("fcm/"+file, 'r')as f:
+        fcm = f.readlines()
+
+def deleteFCMFolders():
+    dir = 'fcm/'
+    for f in os.listdir(dir):
+        print("Deleting fcm files...")
+        os.remove(os.path.join(dir,f))
 
 def main(example, k, alpha):
 
@@ -93,6 +114,8 @@ def main(example, k, alpha):
     begin = time.perf_counter()
 
     fcm = FCM(example, k, alpha)
+    #learnLanguage(k, alpha)
+    #deleteFCMFolders()
 
     probs, prio = fcm.run()
     end = time.perf_counter()
