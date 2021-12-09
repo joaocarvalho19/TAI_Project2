@@ -37,6 +37,8 @@ class Lang:
                 p =  self.alpha / (self.alpha*len(self.ref_alphabet))
                 final_sum -= math.log2(p)
 
+        num_bits = round(final_sum, 2)
+        #print("BITS: ", num_bits)
+        #print("LEN DICT: ",len(final_dict))
 
-        print("BITS?: ",round(final_sum, 2))
-        print("LEN DICT: ",len(final_dict))
+        return num_bits

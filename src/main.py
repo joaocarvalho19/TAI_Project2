@@ -3,6 +3,7 @@ import time
 import math
 from sys import argv
 from fcm import FCM
+from findlang import FindLang
 from lang import Lang
 import os
 
@@ -94,6 +95,11 @@ def learnLanguage(k, alpha):
             fcm = FCM(ref_path+file, k, alpha).run()
             writeFCM(file, fcm)
 
+def getRefs():
+    ref_path = 'refs/'
+    files = os.listdir(ref_path)
+    return files
+
 def writeFCM(file, fcm):
     with open("fcm/"+file, 'w')as f:
         print(fcm, file=f)
@@ -108,23 +114,32 @@ def deleteFCMFolders():
         print("Deleting fcm files...")
         os.remove(os.path.join(dir,f))
 
-def main(example, k, alpha):
+def main(example, target, k, alpha):
 
     # FCM
     begin = time.perf_counter()
 
-    fcm = FCM(example, k, alpha)
-    #learnLanguage(k, alpha)
-    #deleteFCMFolders()
+    """fcm = FCM(example, k, alpha)
+    learnLanguage(k, alpha)
+    deleteFCMFolders()
 
     probs, prio = fcm.run()
+    
+
+     Lang
+    lang = Lang(target, k, alpha, probs, fcm.getAlphabet(), fcm.getAppearances())
+    num_bits = lang.run()"""
+
+    #FindLang
+    lang_list = getRefs()
+    find = FindLang(lang_list, target, k, alpha)
+    lang = find.run()
+    print("\nLanguage Guess: {}".format(lang))
+
     end = time.perf_counter()
     print("Time elapsed: ",end-begin)
 
-    # Lang
-    lang = Lang("target_file/test.txt", k, alpha, probs, fcm.getAlphabet(), fcm.getAppearances())
-    lang.run()
-
+    
     # Generator
     #generator(a, prio, 10000)
 
@@ -133,6 +148,7 @@ if __name__ == "__main__":
     example = None
     k = None
     alpha = None
+    target = "target_file/test.txt"
 
     try:
         example = argv[1]
@@ -143,6 +159,6 @@ if __name__ == "__main__":
         print("Usage: python3 src/main.py refs/<reference file> <k> <alpha>")
     
     if example and k and alpha:
-        main(example, k, alpha)
+        main(example, target, k, alpha)
     else:
         print("Usage: python3 src/main.py refs/<reference file> <k> <alpha>")
