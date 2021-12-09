@@ -119,36 +119,33 @@ def main(example, target, k, alpha):
     # FCM
     begin = time.perf_counter()
 
-    """fcm = FCM(example, k, alpha)
-    learnLanguage(k, alpha)
-    deleteFCMFolders()
+    fcm = FCM(example, k, alpha)
+    #learnLanguage(k, alpha)
+    #deleteFCMFolders()
 
     probs, prio = fcm.run()
     
-
-     Lang
     lang = Lang(target, k, alpha, probs, fcm.getAlphabet(), fcm.getAppearances())
-    num_bits = lang.run()"""
+    num_bits = lang.run()
+    print("Sum of bits: ".format(num_bits))
 
     #FindLang
-    lang_list = getRefs()
+    """lang_list = getRefs()
     find = FindLang(lang_list, target, k, alpha)
     lang = find.run()
     print("\nLanguage Guess: {}".format(lang))
 
     end = time.perf_counter()
-    print("Time elapsed: ",end-begin)
+    print("Time elapsed: ",end-begin)"""
 
-    
     # Generator
     #generator(a, prio, 10000)
-
 
 if __name__ == "__main__":
     example = None
     k = None
     alpha = None
-    target = "target_file/test.txt"
+    target = "target_file/mix_PT_DEU.txt"
 
     try:
         example = argv[1]
