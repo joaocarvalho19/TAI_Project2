@@ -1,3 +1,6 @@
+import statistics
+import time
+
 from fcm import FCM
 import math
 import matplotlib.pyplot as plt
@@ -47,11 +50,90 @@ class Lang:
                 bits_list.append(sum(temp_list)/len(temp_list))
                 temp_list=[]
 
+        start_time = time.time()
+
+        print(len(bits_list))
+
+        length_big_texts = int(len(bits_list)/50)
+
+        #length_big_texts = int(len(bits_list))
+
+
+        if len(bits_list) > 10000:
+            #TODO - decide on values
+            # -> if the length of smoothing is too big, it takes a lot of time
+            # and the graph is basically a straight line
+            # -> if the interval is too small, it does basically nothing
+
+            bits_list = self.smoothing(bits_list, length_big_texts)
+        else:
+            bits_list = self.smoothing(bits_list, len(bits_list))
+
+        end_time = time.time()
+
+        print(end_time - start_time)
+
         x = [i for i in range(len(bits_list))]
-        plt.scatter(x, bits_list)
+
+        threshold = ((max(bits_list) - min(bits_list)) / 2 + min(bits_list) ) * 0.9 #TODO - this 0.9 can be replaced by a value from 0.8 to 1, depends of how much we want to detect
+
+        #threshold = statistics.mean(bits_list) * 1.5
+        print("threshold - ", threshold)
+
+        self.detect_changes(bits_list, threshold)
+        #print(bits_list)
+
+
+        plt.scatter(x, bits_list, 1)
         plt.show()
         num_bits = round(final_sum, 2)
         #print("BITS: ", num_bits)
         #print("LEN DICT: ",len(final_dict))
 
         return num_bits
+
+    def smoothing(self, listValues, smoothingInterval):
+        count = 0
+
+        for i in range(smoothingInterval, len(listValues[smoothingInterval:]) + smoothingInterval * 2):
+
+            subList = listValues[count: count + smoothingInterval]
+
+            soma = 0
+
+            for j in subList:
+                soma += j
+
+            soma = round(soma / len(subList), 2)
+
+            for j in range(0, smoothingInterval + 1):
+                listValues[count] = soma
+
+            count += 1
+
+        return listValues
+
+    def detect_changes(self, listValues, threshold): #checks if values are abover or below the threshold, if they are above, they are likely not in accordance with the reference
+
+        listErrors = []
+        listPositions = []
+        count = 0
+
+        for i in listValues:
+
+            if i > threshold:
+
+                listErrors.append(i)
+                listPositions.append(count)
+
+            count += 1
+
+        #TODO - tratamento de outliers
+
+        plt.scatter(listPositions, listErrors, 1)
+        plt.show()
+
+
+
+
+
