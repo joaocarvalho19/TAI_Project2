@@ -14,7 +14,9 @@ class Lang:
         self.ref_alphabet = ref_alphabet
         self.ref_appearances = ref_appearances
 
-    def run(self):
+        self.listErrorsAllLangs = []
+
+    def run(self, ref_material):
         fileContent = FCM.readFile(self, self.target)
         final_dict = {}
         final_sum = 0
@@ -89,7 +91,7 @@ class Lang:
         #threshold = statistics.mean(bits_list) * 1.5
         #print("threshold - ", max(temp_list_to_remove), min(temp_list_to_remove), max(bits_list), min(bits_list), threshold)
 
-        self.detect_changes(bits_list, threshold)
+        self.listErrorsAllLangs += self.detect_changes(bits_list, threshold)
         #print(bits_list)
 
 
@@ -98,6 +100,8 @@ class Lang:
         num_bits = round(final_sum, 2)
         #print("BITS: ", num_bits)
         #print("LEN DICT: ",len(final_dict))
+
+        self.what_lang(ref_material)
 
         return num_bits
 
@@ -143,6 +147,14 @@ class Lang:
 
         plt.scatter(listPositions, listErrors, 1)
         plt.show()
+
+        return listPositions
+
+    def what_lang(self, ref_material): #todo - associate the language with these values
+
+
+        print("Not me - ",ref_material , self.listErrorsAllLangs[0], self.listErrorsAllLangs[len(self.listErrorsAllLangs) -1])
+        #print(self.listErrorsAllLangs)
 
 
 

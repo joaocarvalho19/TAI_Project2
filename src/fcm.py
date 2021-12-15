@@ -17,7 +17,7 @@ class FCM:
         
     def readFile(self, text):
         #reads a .txt file
-        file = open(text, "r")
+        file = open(text, "r", encoding="UTF-8")
         fileContent = file.read()
         
         return fileContent

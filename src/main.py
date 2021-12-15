@@ -126,7 +126,7 @@ def main(example, target, k, alpha):
     probs, prio = fcm.run()
     
     lang = Lang(target, k, alpha, probs, fcm.getAlphabet(), fcm.getAppearances())
-    num_bits = lang.run()
+    num_bits = lang.run(example)
     print("Sum of bits: ".format(num_bits))
 
     #FindLang
