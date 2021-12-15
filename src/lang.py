@@ -75,10 +75,19 @@ class Lang:
 
         x = [i for i in range(len(bits_list))]
 
-        threshold = ((max(bits_list) - min(bits_list)) / 2 + min(bits_list) ) * 0.9 #TODO - this 0.9 can be replaced by a value from 0.8 to 1, depends of how much we want to detect
+        #TODO - temporary solution to threshold, last values have issues in smoothing
+
+        indices = [0, int(len(bits_list) *0.95)]
+        temp_list_to_remove = [bits_list[index] for index in indices]
+        #temp_list_to_remove = range(0, int(len(bits_list) *0.99)) #removes the last 1% of values to calculate the threshold
+        #print("len temp list - ", len(temp_list_to_remove))
+        threshold = ((max(temp_list_to_remove) - min(temp_list_to_remove)) / 2)
+        threshold += (min(temp_list_to_remove)) * 0.9
+
+        #threshold = ((max(bits_list) - min(bits_list)) / 2 + min(bits_list) ) * 0.9 #TODO - this 0.9 can be replaced by a value from 0.8 to 1, depends of how much we want to detect
 
         #threshold = statistics.mean(bits_list) * 1.5
-        print("threshold - ", threshold)
+        #print("threshold - ", max(temp_list_to_remove), min(temp_list_to_remove), max(bits_list), min(bits_list), threshold)
 
         self.detect_changes(bits_list, threshold)
         #print(bits_list)
@@ -92,10 +101,10 @@ class Lang:
 
         return num_bits
 
-    def smoothing(self, listValues, smoothingInterval):
+    def smoothing(self, listValues, smoothingInterval): #weird values at the end of the text which affect the threshold choice
         count = 0
 
-        for i in range(smoothingInterval, len(listValues[smoothingInterval:]) + smoothingInterval * 2):
+        for i in range(smoothingInterval, len(listValues[smoothingInterval:]) + smoothingInterval *2):
 
             subList = listValues[count: count + smoothingInterval]
 
@@ -110,6 +119,8 @@ class Lang:
                 listValues[count] = soma
 
             count += 1
+
+
 
         return listValues
 
@@ -128,7 +139,7 @@ class Lang:
 
             count += 1
 
-        #TODO - tratamento de outliers
+        #TODO - tratamento de outliers?
 
         plt.scatter(listPositions, listErrors, 1)
         plt.show()

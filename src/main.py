@@ -141,21 +141,36 @@ def main(example, target, k, alpha):
     # Generator
     #generator(a, prio, 10000)
 
-if __name__ == "__main__":
-    example = None
+if __name__ == "__main__": #python3 src/main.py examples/gatsby.tst 3 0.1
+
+    #example = None
+
+    from os import listdir
+    from os.path import isfile, join
+
+
+    refs_path = "refs"
+
+    ref_files = listdir(refs_path)
+
+    print(ref_files)
+
     k = None
     alpha = None
-    target = "target_file/mix_PT_DEU.txt"
+    target = None
 
     try:
-        example = argv[1]
+        target = argv[1]
         k = int(argv[2])
         alpha = float(argv[3])
 
     except Exception as err:
         print("Usage: python3 src/main.py refs/<reference file> <k> <alpha>")
     
-    if example and k and alpha:
-        main(example, target, k, alpha)
+    if target and k and alpha:
+
+        for example in ref_files:
+            print(example)
+            main("refs/" + example, target, k, alpha)
     else:
         print("Usage: python3 src/main.py refs/<reference file> <k> <alpha>")
