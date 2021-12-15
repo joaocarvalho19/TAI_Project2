@@ -32,16 +32,17 @@ class FCM:
             if len(prio) < self.k:
                 prio += i
 
-        return alphabet, prio
+        self.alphabet = alphabet
+        return prio
     
-    def calcEntropy(self, cols):
+    def calcEntropy(self):
         H_dict = {}
         Probs = {}
         for c in self.n_appearances.keys():
             Hc = 0
             Probs[c] = {}        
             for s in self.n_appearances[c].keys():
-                prob = self.calcProb(c, s, cols)
+                prob = self.calcProb(c, s)
                 Probs[c][s] = prob
 
                 Hc += -prob*math.log2(prob)
@@ -50,16 +51,15 @@ class FCM:
 
         return H_dict, Probs
     
-    def calcProb(self, c, e, cols):
-        prob = (self.n_appearances[c][e]+self.alpha) / (sum(self.n_appearances[c].values()) + (self.alpha*len(cols)))
+    def calcProb(self, c, e):
+        prob = (self.n_appearances[c][e]+self.alpha) / (sum(self.n_appearances[c].values()) + (self.alpha*len(self.n_appearances[c])))
         return prob
 
 
     def run(self):
         fileContent = self.readFile(self.text)
-        print("file size: ", len(fileContent))
-        cols, prio = list(self.createAlphabet(fileContent))
-        self.alphabet = cols
+        #print("file size: ", len(fileContent))
+        prio = list(self.createAlphabet(fileContent))
 
         #Make table(Dictionary)
         for i in range(self.k, len(fileContent[self.k:])+1):
@@ -75,9 +75,9 @@ class FCM:
 
             else:
                 self.n_appearances[c][e] += 1
-        #print(self.n_appearances)
+
         #Entropy of each context
-        H_dict, Probs = self.calcEntropy(cols)          #key - context; value - H
+        H_dict, Probs = self.calcEntropy()          #key - context; value - H
 
         #AVG Entropy
         entropy_sum = 0
@@ -86,6 +86,6 @@ class FCM:
             Pc = sum(self.n_appearances[c].values()) / total_sum
             entropy_sum += H_dict[c] * Pc
 
-        print("Value of entropy ", round(entropy_sum, 2), " bits/symbol")
+        #print("Value of entropy ", round(entropy_sum, 2), " bits/symbol")
 
         return Probs, prio

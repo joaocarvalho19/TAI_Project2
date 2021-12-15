@@ -3,8 +3,9 @@ import time
 import math
 from sys import argv
 from fcm import FCM
+from findlang import FindLang
 from lang import Lang
-
+import os
 
 def generator(dictionary, prior, lenText):
     # checks if prior is valid
@@ -85,41 +86,91 @@ def sorting (values): #returns the position chosen
 
     return len(values)-1
 
+def learnLanguage(k, alpha):
+    ref_path = 'refs/'
+    files = os.listdir(ref_path)
+    fcm = {}
+    for file in files:
+        if os.path.isfile(os.path.join(ref_path, file)):
+            fcm = FCM(ref_path+file, k, alpha).run()
+            writeFCM(file, fcm)
 
+def getRefs():
+    ref_path = 'refs/'
+    files = os.listdir(ref_path)
+    return files
 
-def main(example, k, alpha):
+def writeFCM(file, fcm):
+    with open("fcm/"+file, 'w')as f:
+        print(fcm, file=f)
+
+def readFCM(file):
+    with open("fcm/"+file, 'r')as f:
+        fcm = f.readlines()
+
+def deleteFCMFolders():
+    dir = 'fcm/'
+    for f in os.listdir(dir):
+        print("Deleting fcm files...")
+        os.remove(os.path.join(dir,f))
+
+def main(example, target, k, alpha):
 
     # FCM
     begin = time.perf_counter()
 
     fcm = FCM(example, k, alpha)
+    #learnLanguage(k, alpha)
+    #deleteFCMFolders()
 
     probs, prio = fcm.run()
-    end = time.perf_counter()
-    print("Time elapsed: ",end-begin)
+    
+    lang = Lang(target, k, alpha, probs, fcm.getAlphabet(), fcm.getAppearances())
+    num_bits = lang.run(example)
+    print("Sum of bits: ".format(num_bits))
 
-    # Lang
-    lang = Lang("target_file/test.txt", k, alpha, probs, fcm.getAlphabet(), fcm.getAppearances())
-    lang.run()
+    #FindLang
+    """lang_list = getRefs()
+    find = FindLang(lang_list, target, k, alpha)
+    lang = find.run()
+    print("\nLanguage Guess: {}".format(lang))
+
+    end = time.perf_counter()
+    print("Time elapsed: ",end-begin)"""
 
     # Generator
     #generator(a, prio, 10000)
 
+if __name__ == "__main__": #python3 src/main.py examples/gatsby.tst 3 0.1
 
-if __name__ == "__main__":
-    example = None
+    #example = None
+
+    from os import listdir
+    from os.path import isfile, join
+
+
+    refs_path = "refs"
+
+    ref_files = listdir(refs_path)
+
+    print(ref_files)
+
     k = None
     alpha = None
+    target = None
 
     try:
-        example = argv[1]
+        target = argv[1]
         k = int(argv[2])
         alpha = float(argv[3])
 
     except Exception as err:
         print("Usage: python3 src/main.py refs/<reference file> <k> <alpha>")
     
-    if example and k and alpha:
-        main(example, k, alpha)
+    if target and k and alpha:
+
+        for example in ref_files:
+            print(example)
+            main("refs/" + example, target, k, alpha)
     else:
         print("Usage: python3 src/main.py refs/<reference file> <k> <alpha>")
