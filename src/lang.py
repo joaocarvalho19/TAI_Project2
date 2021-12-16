@@ -55,13 +55,9 @@ class Lang:
                 bits_list.append(sum(temp_list)/len(temp_list))
                 temp_list=[]
 
-        start_time = time.time()
-
-        #print(len(bits_list))
 
         length_big_texts = int(len(bits_list)/50)
 
-        #length_big_texts = int(len(bits_list))
 
 
         if len(bits_list) > 10000:
@@ -74,35 +70,23 @@ class Lang:
         else:
             bits_list = self.smoothing(bits_list, len(bits_list))
 
-        end_time = time.time()
-
-        #print(end_time - start_time)
-
         x = [i for i in range(len(bits_list))]
 
-        #TODO - temporary solution to threshold, last values have issues in smoothing
+        #TODO - temporary solution to threshold because last values have issues in smoothing
 
-        indices = [0, int(len(bits_list) *0.95)]
+        indices = [0, int(len(bits_list) * 0.95)]
         temp_list_to_remove = [bits_list[index] for index in indices]
-        #temp_list_to_remove = range(0, int(len(bits_list) *0.99)) #removes the last 1% of values to calculate the threshold
-        #print("len temp list - ", len(temp_list_to_remove))
+
         threshold = ((max(temp_list_to_remove) - min(temp_list_to_remove)) / 2)
         threshold += (min(temp_list_to_remove)) * 0.9
 
-        #threshold = ((max(bits_list) - min(bits_list)) / 2 + min(bits_list) ) * 0.9 #TODO - this 0.9 can be replaced by a value from 0.8 to 1, depends of how much we want to detect
-
-        #threshold = statistics.mean(bits_list) * 1.5
-        #print("threshold - ", max(temp_list_to_remove), min(temp_list_to_remove), max(bits_list), min(bits_list), threshold)
-
         self.listErrorsAllLangs += self.detect_changes(bits_list, threshold)
-        #print(bits_list)
 
+        plt.scatter(x, bits_list, 1)
+        plt.show()
 
-        #plt.scatter(x, bits_list, 1)
-        #plt.show()
         num_bits = round(final_sum, 2)
-        #print("BITS: ", num_bits)
-        #print("LEN DICT: ",len(final_dict))
+
 
         answer = self.locatelang(bits_list)
 
@@ -111,6 +95,7 @@ class Lang:
         print(lang_answer)
 
         return num_bits
+
 
     def smoothing(self, listValues, smoothingInterval): #weird values at the end of the text which affect the threshold choice
         count = 0
@@ -131,9 +116,8 @@ class Lang:
 
             count += 1
 
-
-
         return listValues
+
 
     def detect_changes(self, listValues, threshold): #checks if values are abover or below the threshold, if they are above, they are likely not in accordance with the reference
 
@@ -150,19 +134,16 @@ class Lang:
 
             count += 1
 
-        #TODO - tratamento de outliers?
-
         #plt.scatter(listPositions, listErrors, 1)
         #plt.show()
 
         return listPositions
 
-    def locatelang(self, bitsList): #todo - associate the language with these values
 
+    def locatelang(self, bitsList):
         aux = []
         count = 0
         answer = []
-
 
         for i in bitsList: #invert to get the positions that match
             if count not in self.listErrorsAllLangs:
@@ -172,10 +153,16 @@ class Lang:
 
         for k, g in groupby(enumerate(aux), lambda x: x[0] - x[1]):
             group = list(map(itemgetter(1), g))
-            answer.append((group[0], group[-1]))
+
+            if group[-1] - group[0] > 15: #tratamento outliers, se forem menos de 15 caracteres não é considerado
+                answer.append((group[0], group[-1]))
 
         print("answer -", answer)
         return answer
+
+
+    #--------bonus---------
+
 
     def runBonus(self):
         fileContent = FCM.readFile(self, self.target)
@@ -213,34 +200,54 @@ class Lang:
                 bits_list.append(sum(temp_list) / len(temp_list))
                 temp_list = []
 
-        print(bits_list)
-        return bits_list
+        length_big_texts = int(len(bits_list) / 50)
+        bits_list1 = self.smoothing(bits_list, length_big_texts)
+
+
+        return bits_list1
 
 
 
     def hybrid(self, list1, list2): #returns a list of hybrid entropies, don't know if this is what we're supposed to do
-
-        print(len(list1))
-        print(len(list2))
-
+        #list1 - k = 2
+        #list2 - k = 4
         count = 0
         listBest = []
 
         for i in list2:
-            #print(i)
-            #print(list2[count])
 
-            #print(count)
             if i > list1[count]:
 
-                listBest.append((1, list1[count]))
+                listBest.append((1, list1[count], count))
 
             else:
-                listBest.append((2, i))
-
+                listBest.append((2, i, count))
 
             count += 1
 
-            print(listBest)
+            best1 = []
+            best2 = []
+
+        x1 = []
+        x2 = []
+
+        soma_bits = 0
+
+        for j in listBest:
+
+            soma_bits += j[1]
+
+            if j[0] == 1:
+                best1.append(j[1])
+                x1.append(j[2])
+            else:
+                best2.append(j[1])
+                x2.append(j[2])
+
+        print(soma_bits)
+
+        plt.scatter(x1, best1, 1, c= 'coral')
+        plt.scatter(x2, best2, 1)
+        plt.show()
 
         return listBest
