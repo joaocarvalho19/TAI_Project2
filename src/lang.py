@@ -104,7 +104,11 @@ class Lang:
         #print("BITS: ", num_bits)
         #print("LEN DICT: ",len(final_dict))
 
-        self.find_positions_correspond_lang(ref_material, bits_list)
+        answer = self.locatelang(bits_list)
+
+        lang_answer = [ref_material, answer]
+
+        print(lang_answer)
 
         return num_bits
 
@@ -153,7 +157,7 @@ class Lang:
 
         return listPositions
 
-    def find_positions_correspond_lang(self, ref_material, bitsList): #todo - associate the language with these values
+    def locatelang(self, bitsList): #todo - associate the language with these values
 
         aux = []
         count = 0
@@ -173,3 +177,70 @@ class Lang:
         print("answer -", answer)
         return answer
 
+    def runBonus(self):
+        fileContent = FCM.readFile(self, self.target)
+        final_dict = {}
+        final_sum = 0
+        bits_list = []
+        temp_list = []
+        for i in range(self.k, len(fileContent[self.k:]) + 1):
+            c = fileContent[i - self.k:i]
+            e = fileContent[i]
+            bits = 0
+            if c in self.probs.keys():
+                if e in self.probs[c]:
+
+                    if c not in final_dict:
+                        final_dict[c] = {}
+
+                    final_dict[c][e] = self.probs[c][e]
+                    bits = -math.log2(self.probs[c][e])
+                    final_sum += bits
+
+                # Symbol not in reference text
+                else:
+                    p = self.alpha / (sum(self.ref_appearances[c].values()) + (self.alpha * len(self.ref_alphabet)))
+                    bits = -math.log2(p)
+                    final_sum += bits
+
+            else:
+                p = self.alpha / (self.alpha * len(self.ref_alphabet))
+                bits = -math.log2(p)
+                final_sum += bits
+
+            temp_list.append(bits)
+            if len(temp_list) == 5:
+                bits_list.append(sum(temp_list) / len(temp_list))
+                temp_list = []
+
+        print(bits_list)
+        return bits_list
+
+
+
+    def hybrid(self, list1, list2): #returns a list of hybrid entropies, don't know if this is what we're supposed to do
+
+        print(len(list1))
+        print(len(list2))
+
+        count = 0
+        listBest = []
+
+        for i in list2:
+            #print(i)
+            #print(list2[count])
+
+            #print(count)
+            if i > list1[count]:
+
+                listBest.append((1, list1[count]))
+
+            else:
+                listBest.append((2, i))
+
+
+            count += 1
+
+            print(listBest)
+
+        return listBest
