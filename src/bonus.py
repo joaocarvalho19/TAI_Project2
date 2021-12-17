@@ -1,14 +1,14 @@
-from random import random
-import time
-import math
-from sys import argv
+import argparse
 from fcm import FCM
-from findlang import FindLang
 from lang import Lang
-import os
-
 
 def bonus_challenge(example, target, k1, k2, alpha):
+
+    if k1 > k2:
+        aux = k1
+        k1 = k2
+        k2 = aux
+        print("Had to switch them")
 
     fcm1 = FCM(example, k1, alpha)
     probs1, prio1 = fcm1.run()
@@ -38,8 +38,27 @@ def bonus_challenge(example, target, k1, k2, alpha):
     return lang1, lang2
 
 
+def bonus(): #src/bonus.py -k1 2 -k2 4 -a 0.1 -rf refs/eng_GB.latn.English.EP7.utf8 -t examples/pt_en.txt
+
+    parser = argparse.ArgumentParser(description="Bonus challenge",
+                                     usage="python3 src/bonus.py -k1 <value of k1> -k2 <value of k2> -a <value of alpha> -rf <reference file> -t <target file>")
+
+    parser.add_argument("-k1", help="Value of k1", type=int, default=2)
+    parser.add_argument("-k2", help="Value of k2", type=int, default=4)
+    parser.add_argument("-a", help="Value of alpha", type=float, default=0.1)
+
+    parser.add_argument("-rf", help="Path to reference file", type=str, required=True)
+    parser.add_argument("-t", help="Path to target file", type=str, required=True)
+
+    args = parser.parse_args()
+
+    bonus_challenge(args.rf, args.t, args.k1, args.k2, args.a)
+
+if __name__ == "__main__":
+    bonus()
 
 
+'''
 if __name__ == "__main__":
     k1 = 2
     k2 = 4
@@ -50,4 +69,4 @@ if __name__ == "__main__":
 
     lang1, lang2 = bonus_challenge("../refs/" + example, target, k1, k2, alpha)
 
-
+'''

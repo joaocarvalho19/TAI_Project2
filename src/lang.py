@@ -78,7 +78,7 @@ class Lang:
         temp_list_to_remove = [bits_list[index] for index in indices]
 
         threshold = ((max(temp_list_to_remove) - min(temp_list_to_remove)) / 2)
-        threshold += (min(temp_list_to_remove)) * 0.9
+        threshold += (min(temp_list_to_remove)) * 0.95
 
         self.listErrorsAllLangs += self.detect_changes(bits_list, threshold)
 
