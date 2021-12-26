@@ -24,7 +24,7 @@ class FCM:
 
     def createAlphabet(self, fileContent):
         #creates a set with all the possible characters
-        #each letter only appears once and it's unordere
+        #each letter only appears once and it's unordered
         prio=""
         alphabet = set()
         for i in fileContent:
@@ -32,7 +32,7 @@ class FCM:
             if len(prio) < self.k:
                 prio += i
 
-        self.alphabet = alphabet
+        self.alphabet = list(alphabet)
         return prio
     
     def calcEntropy(self):
@@ -58,7 +58,6 @@ class FCM:
 
     def run(self):
         fileContent = self.readFile(self.text)
-        #print("file size: ", len(fileContent))
         prio = list(self.createAlphabet(fileContent))
 
         #Make table(Dictionary)
