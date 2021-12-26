@@ -1,4 +1,5 @@
 import pickle
+import statistics
 from os import listdir
 from random import random
 import time
@@ -8,6 +9,8 @@ from fcm import FCM
 from findlang import FindLang
 from lang import Lang
 import os
+
+bits_matrix = []
 
 
 def listToString (l):
@@ -121,9 +124,31 @@ def main(example, target, k, alpha):
 
     #make comparisons
     lang = Lang(target, k, alpha, probs, alphabet, appearances)
-    num_bits = lang.run(example)
-
+    num_bits, bits_list = lang.run(example)
     print("Sum of bits: ", num_bits)
+    
+    bits_matrix.append([example_name, bits_list])
+
+
+def define_Theshold():
+    #print(bits_matrix)
+
+    avr_values_list = []
+
+    for i in bits_matrix:
+        avr_values_list.append(statistics.mean(i[1]))
+
+    print(avr_values_list)
+
+    threshold = min(avr_values_list) * 1.15
+    print(threshold)
+
+    for i in bits_matrix:
+        lang = Lang(target, k, alpha, 1, 1, 1)
+        lang.calculate_langs(i[0], i[1], threshold)
+
+
+
 
 
 if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
@@ -154,6 +179,11 @@ if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
             main("refs/" + example, target, k, alpha)
     else:
         print("Usage: python3 src/main.py refs/<reference file> <k> <alpha>")
+        
+    threshold = define_Theshold()
+
+
+
 
     end = time.time()
 

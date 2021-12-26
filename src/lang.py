@@ -6,6 +6,7 @@ import math
 import matplotlib.pyplot as plt
 from operator import itemgetter
 from itertools import groupby
+import statistics
 
 
 class Lang:
@@ -34,7 +35,7 @@ class Lang:
 
                     if c not in final_dict:
                         final_dict[c] = {}
-                        
+
                     final_dict[c][e] = self.probs[c][e]
                     bits = -math.log2(self.probs[c][e])
                     final_sum += bits
@@ -56,8 +57,8 @@ class Lang:
                 temp_list=[]
 
 
-        #length_big_texts = int(len(bits_list)/50)
-        length_big_texts = 1500
+        length_big_texts = int(len(bits_list)/50)
+        #length_big_texts = 1500
 
 
         if len(bits_list) > length_big_texts:
@@ -75,29 +76,28 @@ class Lang:
 
         #TODO - temporary solution to threshold because last values have issues in smoothing
 
-        indices = [0, int(len(bits_list) * 0.95)]
-        temp_list_to_remove = [bits_list[index] for index in indices]
+        #indices = [0, int(len(bits_list) * 0.95)]
+        #temp_list_to_remove = [bits_list[index] for index in indices]
 
-        threshold = ((max(temp_list_to_remove) - min(temp_list_to_remove)) / 2)
-        threshold += (min(temp_list_to_remove)) * 0.95
+        #threshold = ((max(temp_list_to_remove) - min(temp_list_to_remove)) / 2)
+        #threshold += (min(temp_list_to_remove)) * 0.95
 
-        self.listErrorsAllLangs += self.detect_changes(bits_list, threshold)
+
 
         #plt.scatter(x, bits_list, 1)
         #plt.show()
 
         num_bits = round(final_sum, 2)
 
-        print("Sum of bits: ", num_bits)
+        #self.listErrorsAllLangs += self.detect_changes(bits_list, threshold)
+        #answer = self.locatelang(bits_list)
 
+        #lang_answer = [ref_material, answer]
 
-        answer = self.locatelang(bits_list)
+        #print(lang_answer)
 
-        lang_answer = [ref_material, answer]
-
-        print(lang_answer)
-
-        return num_bits
+        print("min - ", min(bits_list), "MAX - ", max(bits_list), "avr - ", statistics.mean(bits_list))
+        return num_bits, bits_list
 
 
     def smoothing(self, listValues, smoothingInterval): #weird values at the end of the text which affect the threshold choice
@@ -121,6 +121,15 @@ class Lang:
 
         return listValues
 
+    def calculate_langs(self,ref_material, bits_list, threshold):
+
+        self.listErrorsAllLangs += self.detect_changes(bits_list, threshold)
+        answer = self.locatelang(bits_list)
+
+        lang_answer = [ref_material, answer]
+
+        print("\n\n",lang_answer)
+
 
     def detect_changes(self, listValues, threshold): #checks if values are abover or below the threshold, if they are above, they are likely not in accordance with the reference
 
@@ -130,7 +139,7 @@ class Lang:
 
         for i in listValues:
 
-            if i > threshold or i > 4.3:
+            if i > threshold:
 
                 listErrors.append(i)
                 listPositions.append(count)
@@ -160,7 +169,7 @@ class Lang:
             if group[-1] - group[0] > 10: #tratamento outliers, se forem menos de 10 caracteres não é considerado
                 answer.append((group[0], group[-1]))
 
-        print("answer -", answer)
+        #print("answer -", answer)
         return answer
 
 
