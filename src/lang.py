@@ -20,11 +20,10 @@ class Lang:
         self.ref_appearances = {}
 
         self.listErrorsAllLangs = []
-
-    def run(self):
         #Check if ref fcm is on disk
         self.getFCM()
 
+    def run(self):
         fileContent = FCM.readFile(self, self.target)
         final_dict = {}
         final_sum = 0
@@ -229,7 +228,9 @@ if __name__ == "__main__":
     if target and ref and k and alpha:
 
         #Lang
-        l = Lang(ref, target, k, alpha)
+        aux_ex = ref.split("/")
+        ref_name = aux_ex[len(aux_ex) -1]
+        l = Lang(ref_name, target, k, alpha)
         num_bits, bits_list = l.run()
         print("Estimated number of bits: {}".format(num_bits))
     
