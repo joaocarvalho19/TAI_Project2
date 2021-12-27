@@ -1,26 +1,30 @@
-import statistics
+from os import listdir
+from sys import argv
+import sys
 import time
-
 from fcm import FCM
 import math
 import matplotlib.pyplot as plt
-from operator import itemgetter
-from itertools import groupby
-import statistics
+
+from get_ref_info import GetRefInfo
 
 
 class Lang:
-    def __init__(self, target, k, alpha, probs, ref_alphabet, ref_appearances):
+    def __init__(self, ref, target, k, alpha):
+        self.ref = ref
         self.target = target
         self.k = k
         self.alpha = alpha
-        self.probs = probs
-        self.ref_alphabet = ref_alphabet
-        self.ref_appearances = ref_appearances
+        self.probs = {}
+        self.ref_alphabet = set()
+        self.ref_appearances = {}
 
         self.listErrorsAllLangs = []
 
-    def run(self, ref_material):
+    def run(self):
+        #Check if ref fcm is on disk
+        self.getFCM()
+
         fileContent = FCM.readFile(self, self.target)
         final_dict = {}
         final_sum = 0
@@ -51,10 +55,12 @@ class Lang:
                 bits = -math.log2(p)
                 final_sum += bits
             
-            temp_list.append(bits)
-            if len(temp_list) == 5:
+            bits_list.append(bits)
+
+            # Avg of 10 symbols - to smoth
+            """if len(temp_list) == 1:
                 bits_list.append(sum(temp_list)/len(temp_list))
-                temp_list=[]
+                temp_list=[]"""
 
 
         length_big_texts = int(len(bits_list)/50)
@@ -75,8 +81,6 @@ class Lang:
         x = [i for i in range(len(bits_list))]
 
 
-
-
         #plt.scatter(x, bits_list, 1)
         #plt.show()
 
@@ -85,6 +89,12 @@ class Lang:
 
         #print("min - ", min(bits_list), "MAX - ", max(bits_list), "avr - ", statistics.mean(bits_list))
         return num_bits, bits_list
+    
+    
+    # Check if ref fcm is on disk
+    def getFCM(self):
+        get_ref_info = GetRefInfo(self.ref, self.k, self.alpha)
+        [self.probs, self.ref_alphabet, self.ref_appearances] = get_ref_info.run()
 
 
     def smoothing(self, listValues, smoothingInterval): #weird values at the end of the text which affect the threshold choice
@@ -108,85 +118,7 @@ class Lang:
 
         return listValues
 
-    def calculate_langs(self,ref_material, bits_list, threshold):
-
-        self.listErrorsAllLangs += self.detect_changes(bits_list, threshold)
-        answer = self.locatelang(bits_list)
-
-        lang_answer = [ref_material, answer]
-
-        print("\n\n",lang_answer)
-
-
-    def detect_changes(self, listValues, threshold): #checks if values are abover or below the threshold, if they are above, they are likely not in accordance with the reference
-
-        listErrors = []
-        listPositions = []
-        count = 0
-
-        for i in listValues:
-
-            if i > threshold:
-
-                listErrors.append(i)
-                listPositions.append(count)
-
-            count += 1
-
-        #plt.scatter(listPositions, listErrors, 1)
-        #plt.show()
-
-        return listPositions
-
-
-    def locatelang(self, bitsList):
-        aux = []
-        count = 0
-        answer = []
-        outliers = 10
-
-        for i in bitsList: #invert to get the positions that match
-            if count not in self.listErrorsAllLangs:
-                aux.append(count)
-
-            count += 1
-
-        for k, g in groupby(enumerate(aux), lambda x: x[0] - x[1]):
-            group = list(map(itemgetter(1), g))
-
-            if group[-1] - group[0] > outliers: #tratamento outliers, se forem menos de 10 caracteres não é considerado
-                answer.append((group[0], group[-1]))
-
-        '''for i in range(len(answer) - 2, -1, -1):
-            if answer[i] == 'a':
-                l[i] = l[i] + l.pop(i + 1)
-        print(l)'''
-
-        print(answer)
-
-        for j in range(len(answer) * 10):
-            for i in range(len(answer) -1):
-
-                if i+1 > len(answer):
-                    print("kant")
-
-                if answer[i + 1][0] - answer[i][1] < outliers:
-                    print("here2")
-                    aux_answerpop = answer.pop(i + 1)
-
-                    answer[i] = (answer[i][0], aux_answerpop[1])
-
-
-
-
-
-        #print("answer -", answer)
-
-        #todo - join if the spacing between groups is less than 10 chars
-
-        return answer
-
-
+    
     #--------bonus---------
 
 
@@ -276,3 +208,31 @@ class Lang:
         plt.show()
 
         return listBest
+
+if __name__ == "__main__":
+    begin = time.time()
+    
+    k = None
+    alpha = None
+    ref = None
+    target = None
+
+    try:
+        ref = argv[1]
+        target = argv[2]
+        k = int(argv[3])
+        alpha = float(argv[4])
+
+    except Exception as err:
+        print("Usage: python3 src/lang.py refs/<reference file> target_file/<target file> <k> <alpha>")
+
+    if target and ref and k and alpha:
+
+        #Lang
+        l = Lang(ref, target, k, alpha)
+        num_bits, bits_list = l.run()
+        print("Estimated number of bits: {}".format(num_bits))
+    
+    else:
+        print("Usage: python3 src/lang.py refs/<reference file> target_file/<target file> <k> <alpha>")
+        sys.exit(1)

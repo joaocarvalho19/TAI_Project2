@@ -2,16 +2,18 @@ import pickle
 import statistics
 from os import listdir
 from random import random
+import sys
 import time
 import math
 from sys import argv
+from get_ref_info import GetRefInfo
 from fcm import FCM
 from findlang import FindLang
+from locatelang import LocateLang
 from lang import Lang
 import os
 
-bits_matrix = []
-
+bits_dict = {}
 
 def listToString (l):
     aux = ""
@@ -44,10 +46,6 @@ def learnLanguage(k, alpha):
             fcm = FCM(ref_path+file, k, alpha).run()
             writeFCM(file, fcm)
 
-def getRefs():
-    ref_path = 'refs/'
-    files = os.listdir(ref_path)
-    return files
 
 def writeFCM(file, fcm):
     with open("fcm/"+file, 'w')as f:
@@ -65,100 +63,39 @@ def deleteFCMFolders():
 
 def main(example, target, k, alpha):
 
-    try:
-        os.makedirs('fcm_results')
-    except:
-        pass
-
-    try:
-        os.makedirs('alpha')
-    except:
-        pass
-
-    try:
-        os.makedirs('appearances')
-    except:
-        pass
-
+    #make comparisons
     aux_ex = example.split("/")
     example_name = aux_ex[len(aux_ex) -1]
-
-    name_file = example_name + "_" + str(k) + "_" + str(alpha) + ".pkl"
-    fcms_path = "fcm_results"
-    files_fcm_results = listdir(fcms_path)
-
-
-    if name_file in files_fcm_results: #if the fcm has been calculated previously for the same values, get those values
-       print("i've done this before, I'll just read it")
-
-       probabilities = open(fcms_path + "/" + name_file, "rb")
-       probs = pickle.load(probabilities)
-
-       alpha_dict = open("alpha" + "/" + name_file, "rb")
-       alphabet = pickle.load(alpha_dict)
-
-       appearances_dict = open("appearances" + "/" + name_file, "rb")
-       appearances = pickle.load(appearances_dict)
-
-    else: #else, run the fcm and save the values
-        print("never seen this ref with this k and alpha")
-        # FCM
-        fcm = FCM(example, k, alpha)
-        probs, prio = fcm.run()
-
-        write_fcm = open(fcms_path + "/" + name_file, "wb")
-        pickle.dump(probs, write_fcm)
-        write_fcm.close()
-
-        alphabet = fcm.getAlphabet()
-
-        write_alphabet = open("alpha" + "/" + name_file, "wb")
-        pickle.dump(alphabet, write_alphabet)
-        write_alphabet.close()
-
-        appearances = fcm.getAppearances()
-
-        write_appearances = open("appearances" + "/" + name_file, "wb")
-        pickle.dump(appearances, write_appearances)
-        write_appearances.close()
-
-    #make comparisons
-    lang = Lang(target, k, alpha, probs, alphabet, appearances)
-    num_bits, bits_list = lang.run(example)
-    print("Sum of bits: ", num_bits)
+    lang = Lang(example, target, k, alpha)
+    num_bits, bits_list = lang.run()
+    print(" Sum of bits: ", num_bits)
     
-    bits_matrix.append([example_name, bits_list])
+    bits_dict[example_name] = bits_list
 
 
-def define_Theshold():
-    #print(bits_matrix)
+def define_Threshold():
+    #print(bits_dict)
 
     avr_values_list = []
 
-    for i in bits_matrix:
-        avr_values_list.append(statistics.mean(i[1]))
+    for ex, bits in bits_dict.items():
+        avr_values_list.append(statistics.mean(bits))
 
-    print(avr_values_list)
-
+    #print(avr_values_list)
+    
     threshold = min(avr_values_list) * 1.15
     #1.1 to pt_en
-    print(threshold)
-
-    for i in bits_matrix:
-        lang = Lang(target, k, alpha, 1, 1, 1)
-        lang.calculate_langs(i[0], i[1], threshold)
-
-
-
+    #print(threshold)
+    
+    return threshold
 
 
 if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
-
     begin = time.time()
-
+    
     refs_path = "refs"
     ref_files = listdir(refs_path)
-
+    
     k = None
     alpha = None
     target = None
@@ -170,23 +107,38 @@ if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
 
     except Exception as err:
         print("Usage: python3 src/main.py refs/<reference file> <k> <alpha>")
-    
+
     if target and k and alpha:
-
+    
         #make the process for all files
-
         for example in ref_files:
             print(example)
             main("refs/" + example, target, k, alpha)
+            
+
+        threshold = define_Threshold()
+        print("Threshold: ",threshold)
+
+        # Locate Text Langs
+        locate_langs_list = {}
+        for ex, bits in bits_dict.items():
+            locate = LocateLang(ex, bits, threshold)
+            changes_answer = locate.run()
+
+            # Langs that are supposed to be in the text
+            if changes_answer:
+                locate_langs_list[ex] = changes_answer
+
+        print("Langs in the target text:")
+        for lang, l in locate_langs_list.items():
+            lang = lang.split(".")[2]
+            for i in l:
+                print(" {} starts at char {} and ends at char {}".format(lang, i[0], i[1]))
+        
+        end = time.time()
+        print("\nTime: ",end - begin, len(refs_path))
+
+
     else:
         print("Usage: python3 src/main.py refs/<reference file> <k> <alpha>")
-        
-    threshold = define_Theshold()
-
-
-
-
-    end = time.time()
-
-    print(end - begin, len(refs_path))
-
+        sys.exit()

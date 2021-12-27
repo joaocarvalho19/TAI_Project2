@@ -7,10 +7,22 @@ https://docs.google.com/document/d/1z1AiyWKscZiu1tkcuAjl8rMg1zbRRKAL0oUSMz94aLA/
 
 ## How to execute the program
 
-Versão normal
+Lang
 
 ```bash
-$ python3 src/main.py <path to example file> <k> <alpha>
+$ python3 src/lang.py refs/<reference file> target_file/<target file> <k> <alpha>
+```
+
+FindLang
+
+```bash
+$ python3 src/findlang.py target_file/<target file> <k> <alpha>
+```
+
+LocateLang
+
+```bash
+$ python3 src/locatelang.py target_file/<target file> <k> <alpha>
 ```
 
 Desafio bonus
