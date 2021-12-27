@@ -74,13 +74,6 @@ class Lang:
 
         x = [i for i in range(len(bits_list))]
 
-        #TODO - temporary solution to threshold because last values have issues in smoothing
-
-        #indices = [0, int(len(bits_list) * 0.95)]
-        #temp_list_to_remove = [bits_list[index] for index in indices]
-
-        #threshold = ((max(temp_list_to_remove) - min(temp_list_to_remove)) / 2)
-        #threshold += (min(temp_list_to_remove)) * 0.95
 
 
 
@@ -89,14 +82,8 @@ class Lang:
 
         num_bits = round(final_sum, 2)
 
-        #self.listErrorsAllLangs += self.detect_changes(bits_list, threshold)
-        #answer = self.locatelang(bits_list)
 
-        #lang_answer = [ref_material, answer]
-
-        #print(lang_answer)
-
-        print("min - ", min(bits_list), "MAX - ", max(bits_list), "avr - ", statistics.mean(bits_list))
+        #print("min - ", min(bits_list), "MAX - ", max(bits_list), "avr - ", statistics.mean(bits_list))
         return num_bits, bits_list
 
 
@@ -156,6 +143,7 @@ class Lang:
         aux = []
         count = 0
         answer = []
+        outliers = 10
 
         for i in bitsList: #invert to get the positions that match
             if count not in self.listErrorsAllLangs:
@@ -166,10 +154,36 @@ class Lang:
         for k, g in groupby(enumerate(aux), lambda x: x[0] - x[1]):
             group = list(map(itemgetter(1), g))
 
-            if group[-1] - group[0] > 10: #tratamento outliers, se forem menos de 10 caracteres não é considerado
+            if group[-1] - group[0] > outliers: #tratamento outliers, se forem menos de 10 caracteres não é considerado
                 answer.append((group[0], group[-1]))
 
+        '''for i in range(len(answer) - 2, -1, -1):
+            if answer[i] == 'a':
+                l[i] = l[i] + l.pop(i + 1)
+        print(l)'''
+
+        print(answer)
+
+        for j in range(len(answer) * 10):
+            for i in range(len(answer) -1):
+
+                if i+1 > len(answer):
+                    print("kant")
+
+                if answer[i + 1][0] - answer[i][1] < outliers:
+                    print("here2")
+                    aux_answerpop = answer.pop(i + 1)
+
+                    answer[i] = (answer[i][0], aux_answerpop[1])
+
+
+
+
+
         #print("answer -", answer)
+
+        #todo - join if the spacing between groups is less than 10 chars
+
         return answer
 
 

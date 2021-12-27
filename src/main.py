@@ -141,6 +141,7 @@ def define_Theshold():
     print(avr_values_list)
 
     threshold = min(avr_values_list) * 1.15
+    #1.1 to pt_en
     print(threshold)
 
     for i in bits_matrix:
