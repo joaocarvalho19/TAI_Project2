@@ -6,13 +6,12 @@ from lang import Lang
 
 def bonus_challenge(example, target, k1, k2, alpha):
 
-    switch = False
     if k1 > k2:
         aux = k1
         k1 = k2
         k2 = aux
         print("Had to switch them")
-        switch= True
+
 
     aux_ex = example.split("/")
     example_name = aux_ex[len(aux_ex) -1]
