@@ -14,7 +14,7 @@ def bonus_challenge(example, target, k1, k2, alpha):
 
     aux_ex = example.split("/")
     example_name = aux_ex[len(aux_ex) -1]
-    lang1 = Lang(example_name, target, k1, alpha)
+    lang1 = Lang(example_name, target, k1, alpha, True)
     bitslist1 = lang1.runBonus()
 
     somabits1 = 0
@@ -25,7 +25,7 @@ def bonus_challenge(example, target, k1, k2, alpha):
 
     aux_ex = example.split("/")
     example_name = aux_ex[len(aux_ex) -1]
-    lang2 = Lang(example_name, target, k2, alpha)
+    lang2 = Lang(example_name, target, k2, alpha, True)
     bitslist2 = lang2.runBonus()
 
     somabits2 = 0
