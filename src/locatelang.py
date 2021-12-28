@@ -128,7 +128,7 @@ if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
             aux_ex = example.split("/")
             example_name = aux_ex[len(aux_ex) -1]
 
-            lang = Lang(example, target, k, alpha)
+            lang = Lang(example, target, k, alpha, True)
             num_bits, bits_list = lang.run()
 
             bits_dict[example_name] = bits_list
@@ -139,6 +139,7 @@ if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
         # Locate Text Langs
         locate_langs_list = {}
         for ex, bits in bits_dict.items():
+            print("Check threshold in {}".format(ex))
             locate = LocateLang(ex, bits, threshold)
             changes_answer = locate.run()
 
@@ -146,14 +147,14 @@ if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
             if changes_answer:
                 locate_langs_list[ex] = changes_answer
 
-        print("Langs in the target text:")
+        print("\nLangs in the target text:")
         for lang, l in locate_langs_list.items():
             lang = lang.split(".")[2]
             for i in l:
                 print(" {} starts at char {} and ends at char {}".format(lang, i[0], i[1]))
         
         end = time.time()
-        print("\nTime: ",end - begin, len(refs_path))
+        print("\nTime: ",end - begin)
 
 
     else:

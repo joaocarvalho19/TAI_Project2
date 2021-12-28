@@ -10,7 +10,7 @@ from get_ref_info import GetRefInfo
 
 
 class Lang:
-    def __init__(self, ref, target, k, alpha):
+    def __init__(self, ref, target, k, alpha, isLocate):
         self.ref = ref
         self.target = target
         self.k = k
@@ -18,6 +18,7 @@ class Lang:
         self.probs = {}
         self.ref_alphabet = set()
         self.ref_appearances = {}
+        self.isLocate = isLocate
 
         self.listErrorsAllLangs = []
         #Check if ref fcm is on disk
@@ -54,30 +55,30 @@ class Lang:
                 bits = -math.log2(p)
                 final_sum += bits
             
-            bits_list.append(bits)
+            temp_list.append(bits)
 
             # Avg of 10 symbols - to smoth
-            """if len(temp_list) == 1:
+            if len(temp_list) == 5:
                 bits_list.append(sum(temp_list)/len(temp_list))
-                temp_list=[]"""
+                temp_list=[]
 
 
         length_big_texts = int(len(bits_list)/50)
         #length_big_texts = 1500
 
+        if self.isLocate:
+            if len(bits_list) > length_big_texts:
+                #TODO - decide on values
+                # -> if the length of smoothing is too big, it takes a lot of time
+                # and the graph is basically a straight line
+                # -> if the interval is too small, it does basically nothing
 
-        if len(bits_list) > length_big_texts:
-            #TODO - decide on values
-            # -> if the length of smoothing is too big, it takes a lot of time
-            # and the graph is basically a straight line
-            # -> if the interval is too small, it does basically nothing
-
-            bits_list = self.smoothing(bits_list, length_big_texts)
-        else:
-            bits_list = self.smoothing(bits_list, len(bits_list))
+                bits_list = self.smoothing(bits_list, length_big_texts)
+            else:
+                bits_list = self.smoothing(bits_list, len(bits_list))
 
 
-        x = [i for i in range(len(bits_list))]
+            x = [i for i in range(len(bits_list))]
 
 
         #plt.scatter(x, bits_list, 1)
