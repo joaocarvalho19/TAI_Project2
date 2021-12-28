@@ -57,7 +57,7 @@ class Lang:
             
             temp_list.append(bits)
 
-            # Avg of 10 symbols - to smoth
+            # Avg bits of 5 symbols - to smooth
             if len(temp_list) == 5:
                 bits_list.append(sum(temp_list)/len(temp_list))
                 temp_list=[]
@@ -215,7 +215,7 @@ class Lang:
         return listBest
 
 if __name__ == "__main__":
-    begin = time.time()
+    
     
     k = None
     alpha = None
@@ -234,11 +234,13 @@ if __name__ == "__main__":
     if target and ref and k and alpha:
 
         #Lang
+        begin = time.time()
         aux_ex = ref.split("/")
         ref_name = aux_ex[len(aux_ex) -1]
         l = Lang(ref_name, target, k, alpha)
         num_bits, bits_list = l.run()
         print("Estimated number of bits: {}".format(num_bits))
+        print("\nTime: {}".format(time.time()-begin))
     
     else:
         print("Usage: python3 src/lang.py refs/<reference file> target_file/<target file> <k> <alpha>")

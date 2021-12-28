@@ -61,32 +61,18 @@ class LocateLang:
             group = list(map(itemgetter(1), g))
 
             if group[-1] - group[0] > outliers: #tratamento outliers, se forem menos de 10 caracteres não é considerado
-                answer.append((group[0], group[-1]))
+                
+                if answer:
+                    #join if the spacing between groups is less than 40 chars
+                    if group[0] - answer[-1][1] < 40:
+                        temp_first = answer[-1][0]
+                        answer.pop(-1)
+                        answer.append((temp_first, group[-1]))
+                    else:
+                        answer.append((group[0], group[-1]))
+                else:
+                    answer.append((group[0], group[-1]))
 
-        '''for i in range(len(answer) - 2, -1, -1):
-            if answer[i] == 'a':
-                l[i] = l[i] + l.pop(i + 1)
-        print(l)'''
-
-        #print("ANS: ",answer)
-
-        for j in range(len(answer) * 10):
-            for i in range(len(answer) - 1):
-                if len(answer) <= i+1:
-                    if i+1 > len(answer):
-                        #print("kant")
-                        pass
-
-                    if answer[i + 1][0] - answer[i][1] < outliers:
-                        #print("here2")
-                        aux_answerpop = answer.pop(i + 1)
-
-                        answer[i] = (answer[i][0], aux_answerpop[1])
-
-
-        #print("answer -", answer)
-
-        #todo - join if the spacing between groups is less than 10 chars
 
         return answer
 
@@ -103,7 +89,7 @@ def define_Threshold(bits_dict):
 
 
 if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
-    begin = time.time()
+    
     
     refs_path = "refs"
     ref_files = listdir(refs_path)
@@ -122,7 +108,7 @@ if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
         print("Usage: python3 src/locatelang.py target_file/<target file> <k> <alpha>")
 
     if target and k and alpha:
-    
+        begin = time.time()
         #make the process for all refs
         for example in ref_files:
             aux_ex = example.split("/")
@@ -151,7 +137,7 @@ if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
         for lang, l in locate_langs_list.items():
             lang = lang.split(".")[2]
             for i in l:
-                print(" {} starts at char {} and ends at char {}".format(lang, i[0], i[1]))
+                print(" {} starts at char {} and ends at char {}".format(lang, i[0]*5, i[1]*5))
         
         end = time.time()
         print("\nTime: ",end - begin)

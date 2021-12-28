@@ -133,7 +133,7 @@ if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
         for lang, l in locate_langs_list.items():
             lang = lang.split(".")[2]
             for i in l:
-                print(" {} starts at char {} and ends at char {}".format(lang, i[0], i[1]))
+                print(" {} starts at char {} and ends at char {}".format(lang, i[0]*5, i[1]*5))
         
         end = time.time()
         print("\nTime: ",end - begin, len(refs_path))
