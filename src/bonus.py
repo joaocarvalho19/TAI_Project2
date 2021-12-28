@@ -6,11 +6,13 @@ from lang import Lang
 
 def bonus_challenge(example, target, k1, k2, alpha):
 
+    switch = False
     if k1 > k2:
         aux = k1
         k1 = k2
         k2 = aux
         print("Had to switch them")
+        switch= True
 
     aux_ex = example.split("/")
     example_name = aux_ex[len(aux_ex) -1]
@@ -21,7 +23,7 @@ def bonus_challenge(example, target, k1, k2, alpha):
     for i in bitslist1:
         somabits1 += i
 
-    print(somabits1)
+    print("somabits - k=", k1, " - ", somabits1)
 
     aux_ex = example.split("/")
     example_name = aux_ex[len(aux_ex) -1]
@@ -32,9 +34,9 @@ def bonus_challenge(example, target, k1, k2, alpha):
     for i in bitslist2:
         somabits2 += i
 
-    print(somabits2)
+    print("somabits - k=", k2, " - ", somabits2)
 
-    lang1.hybrid(bitslist1, bitslist2)
+    lang1.hybrid(bitslist1, bitslist2, k1, k2)
 
     return lang1, lang2
 

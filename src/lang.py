@@ -166,7 +166,7 @@ class Lang:
 
 
 
-    def hybrid(self, list1, list2): #returns a list of hybrid entropies with graph
+    def hybrid(self, list1, list2, k1, k2): #returns a list of hybrid entropies with graph
 
         count = 0
         listBest = []
@@ -201,11 +201,16 @@ class Lang:
                 best2.append(j[1])
                 x2.append(j[2])
 
-        print(soma_bits)
+        print("somabits joined- ", soma_bits)
 
         plt.scatter(x1, best1, 1, c= 'coral')
         plt.scatter(x2, best2, 1)
         plt.show()
+
+        print("K=", k1, " - laranja \nK=", k2," - azul")
+
+
+
 
         return listBest
 
