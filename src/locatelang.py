@@ -134,11 +134,20 @@ if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
                 locate_langs_list[ex] = changes_answer
 
         print("\nLangs in the target text:")
+        intervals_list = []
+        subset = False
         for lang, l in locate_langs_list.items():
             lang = lang.split(".")[2]
             for i in l:
-                print(" {} starts at char {} and ends at char {}".format(lang, i[0]*5, i[1]*5))
-        
+                #Check if i(interval) is a subset of another (probably not the right lang)
+                for interval in intervals_list:
+                    if i[0] in range(interval[0], interval[1]) and i[1] in range(interval[0], interval[1]):
+                        subset = True
+
+                if not subset:
+                    print(" {} starts at char {} and ends at char {}".format(lang, i[0]*5, i[1]*5))
+                    
+            intervals_list += l
         end = time.time()
         print("\nTime: ",end - begin)
 

@@ -237,7 +237,7 @@ if __name__ == "__main__":
         begin = time.time()
         aux_ex = ref.split("/")
         ref_name = aux_ex[len(aux_ex) -1]
-        l = Lang(ref_name, target, k, alpha)
+        l = Lang(ref_name, target, k, alpha, False)
         num_bits, bits_list = l.run()
         print("Estimated number of bits: {}".format(num_bits))
         print("\nTime: {}".format(time.time()-begin))
