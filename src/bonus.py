@@ -1,6 +1,8 @@
 import argparse
 from fcm import FCM
 from lang import Lang
+#todo decide whether we should have 2 values of k or a list of int values
+#todo decide whether we should define the target or run all targets
 
 def bonus_challenge(example, target, k1, k2, alpha):
 
@@ -38,7 +40,7 @@ def bonus_challenge(example, target, k1, k2, alpha):
     return lang1, lang2
 
 
-def bonus(): #src/bonus.py -k1 2 -k2 4 -a 0.1 -rf refs/eng_GB.latn.English.EP7.utf8 -t examples/pt_en.txt
+def bonus(): #python3 src/bonus.py -k1 2 -k2 4 -a 0.1 -rf refs/eng_GB.latn.English.EP7.utf8 -t examples/pt_en.txt
 
     parser = argparse.ArgumentParser(description="Bonus challenge",
                                      usage="python3 src/bonus.py -k1 <value of k1> -k2 <value of k2> -a <value of alpha> -rf <reference file> -t <target file>")

@@ -6,6 +6,7 @@ import math
 import matplotlib.pyplot as plt
 from operator import itemgetter
 from itertools import groupby
+import statistics
 
 
 class Lang:
@@ -19,7 +20,7 @@ class Lang:
 
         self.listErrorsAllLangs = []
 
-    def run(self, ref_material):
+    def run(self, ref_material, islocate):
         fileContent = FCM.readFile(self, self.target)
         final_dict = {}
         final_sum = 0
@@ -28,13 +29,13 @@ class Lang:
         for i in range(self.k, len(fileContent[self.k:])+1):
             c = fileContent[i-self.k:i]
             e = fileContent[i]
-            bits = 0
+
             if c in self.probs.keys():
                 if e in self.probs[c]:
 
                     if c not in final_dict:
                         final_dict[c] = {}
-                        
+
                     final_dict[c][e] = self.probs[c][e]
                     bits = -math.log2(self.probs[c][e])
                     final_sum += bits
@@ -57,44 +58,36 @@ class Lang:
 
 
         length_big_texts = int(len(bits_list)/50)
+        #length_big_texts = 1500
 
 
+        if islocate == True:
+            if len(bits_list) > length_big_texts:
+                #TODO - decide on values
+                # -> if the length of smoothing is too big, it takes a lot of time
+                # and the graph is basically a straight line
+                # -> if the interval is too small, it does basically nothing
 
-        if len(bits_list) > 10000:
-            #TODO - decide on values
-            # -> if the length of smoothing is too big, it takes a lot of time
-            # and the graph is basically a straight line
-            # -> if the interval is too small, it does basically nothing
+                print("smothing")
 
-            bits_list = self.smoothing(bits_list, length_big_texts)
-        else:
-            bits_list = self.smoothing(bits_list, len(bits_list))
+                bits_list = self.smoothing(bits_list, length_big_texts)
+            else:
+                bits_list = self.smoothing(bits_list, len(bits_list))
+
 
         x = [i for i in range(len(bits_list))]
 
-        #TODO - temporary solution to threshold because last values have issues in smoothing
 
-        indices = [0, int(len(bits_list) * 0.95)]
-        temp_list_to_remove = [bits_list[index] for index in indices]
 
-        threshold = ((max(temp_list_to_remove) - min(temp_list_to_remove)) / 2)
-        threshold += (min(temp_list_to_remove)) * 0.95
 
-        self.listErrorsAllLangs += self.detect_changes(bits_list, threshold)
-
-        plt.scatter(x, bits_list, 1)
-        plt.show()
+        #plt.scatter(x, bits_list, 1)
+        #plt.show()
 
         num_bits = round(final_sum, 2)
 
 
-        answer = self.locatelang(bits_list)
-
-        lang_answer = [ref_material, answer]
-
-        print(lang_answer)
-
-        return num_bits
+        #print("min - ", min(bits_list), "MAX - ", max(bits_list), "avr - ", statistics.mean(bits_list))
+        return num_bits, bits_list
 
 
     def smoothing(self, listValues, smoothingInterval): #weird values at the end of the text which affect the threshold choice
@@ -117,6 +110,16 @@ class Lang:
             count += 1
 
         return listValues
+
+    def calculate_langs(self,ref_material, bits_list, threshold):
+
+        self.listErrorsAllLangs += self.detect_changes(bits_list, threshold)
+        answer = self.locatelang(bits_list)
+
+        lang_answer = [ref_material, answer]
+
+        if len(answer) != 0:
+            print(lang_answer)
 
 
     def detect_changes(self, listValues, threshold): #checks if values are abover or below the threshold, if they are above, they are likely not in accordance with the reference
@@ -144,6 +147,7 @@ class Lang:
         aux = []
         count = 0
         answer = []
+        outliers = 10
 
         for i in bitsList: #invert to get the positions that match
             if count not in self.listErrorsAllLangs:
@@ -154,10 +158,36 @@ class Lang:
         for k, g in groupby(enumerate(aux), lambda x: x[0] - x[1]):
             group = list(map(itemgetter(1), g))
 
-            if group[-1] - group[0] > 15: #tratamento outliers, se forem menos de 15 caracteres não é considerado
+            if group[-1] - group[0] > outliers: #tratamento outliers, se forem menos de 10 caracteres não é considerado
                 answer.append((group[0], group[-1]))
 
-        print("answer -", answer)
+        '''for i in range(len(answer) - 2, -1, -1):
+            if answer[i] == 'a':
+                l[i] = l[i] + l.pop(i + 1)
+        print(l)'''
+
+        print(answer)
+
+        for j in range(len(answer) * 10):
+            for i in range(len(answer) -2):
+
+                if i+1 > len(answer):
+                    print("kant")
+
+                if answer[i + 1][0] - answer[i][1] < outliers:
+                    print("here2")
+                    aux_answerpop = answer.pop(i + 1)
+
+                    answer[i] = (answer[i][0], aux_answerpop[1])
+
+
+
+
+
+        #print("answer -", answer)
+
+        #todo - join if the spacing between groups is less than 10 chars
+
         return answer
 
 
@@ -173,7 +203,7 @@ class Lang:
         for i in range(self.k, len(fileContent[self.k:]) + 1):
             c = fileContent[i - self.k:i]
             e = fileContent[i]
-            bits = 0
+
             if c in self.probs.keys():
                 if e in self.probs[c]:
 
@@ -208,9 +238,8 @@ class Lang:
 
 
 
-    def hybrid(self, list1, list2): #returns a list of hybrid entropies, don't know if this is what we're supposed to do
-        #list1 - k = 2
-        #list2 - k = 4
+    def hybrid(self, list1, list2): #returns a list of hybrid entropies with graph
+
         count = 0
         listBest = []
 

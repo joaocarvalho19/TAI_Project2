@@ -1,3 +1,6 @@
+import pickle
+import statistics
+from os import listdir
 from random import random
 import time
 import math
@@ -7,61 +10,7 @@ from findlang import FindLang
 from lang import Lang
 import os
 
-def generator(dictionary, prior, lenText):
-    # checks if prior is valid
-
-    aux = list(dictionary.keys())
-
-    if prior in dictionary:
-        if len(aux[0]) == len(prior):
-            print("VALID")
-        else:
-            print("INVALID")
-            return
-    else:
-        print("INVALID")
-        return
-
-
-    #for the moment I'll consider a 10000 char generation
-
-    generated_text = [None] * lenText
-    index = 0
-
-    for i in range(len(generated_text)):
-
-        if i >= len(prior): # Generates text
-            
-            aux = generated_text[i-len(prior): i] #last k positions
-
-            aux_str = listToString(aux)
-            if dictionary.get(aux_str):
-
-                keys_list = list(dictionary.get(aux_str).keys())
-                values_list = list(dictionary.get(aux_str).values())
-
-                position = sorting(values_list)
-
-                answerKey = keys_list[position]
-
-                generated_text[i] = answerKey
-
-                #return next_chars_list[position]
-                index += 1
-
-        else: #fills list with prior
-            generated_text[i] = prior[i]
-
-            index += 1
-
-    result = listToString(generated_text)
-
-    with open('file.txt', 'w') as data: #writes to file.txt the dictionary #12
-        data.write(result)
-
-
-    return result
-
+bits_matrix = []
 
 
 def listToString (l):
@@ -114,63 +63,166 @@ def deleteFCMFolders():
         print("Deleting fcm files...")
         os.remove(os.path.join(dir,f))
 
-def main(example, target, k, alpha):
+def main(example, target, k, alpha, isLocate):
 
-    # FCM
-    begin = time.perf_counter()
+    try:
+        os.makedirs('fcm_results')
+    except:
+        pass
 
-    fcm = FCM(example, k, alpha)
-    #learnLanguage(k, alpha)
-    #deleteFCMFolders()
+    try:
+        os.makedirs('alpha')
+    except:
+        pass
 
-    probs, prio = fcm.run()
+    try:
+        os.makedirs('appearances')
+    except:
+        pass
+
+    aux_ex = example.split("/")
+    example_name = aux_ex[len(aux_ex) -1]
+
+    name_file = example_name + "_" + str(k) + "_" + str(alpha) + ".pkl"
+    fcms_path = "fcm_results"
+    files_fcm_results = listdir(fcms_path)
+
+
+    if name_file in files_fcm_results: #if the fcm has been calculated previously for the same values, get those values
+       #print("i've done this before, I'll just read it")
+
+       probabilities = open(fcms_path + "/" + name_file, "rb")
+       probs = pickle.load(probabilities)
+
+       alpha_dict = open("alpha" + "/" + name_file, "rb")
+       alphabet = pickle.load(alpha_dict)
+
+       appearances_dict = open("appearances" + "/" + name_file, "rb")
+       appearances = pickle.load(appearances_dict)
+
+    else: #else, run the fcm and save the values
+        #print("never seen this ref with this k and alpha")
+        # FCM
+        fcm = FCM(example, k, alpha)
+        probs, prio = fcm.run()
+
+        write_fcm = open(fcms_path + "/" + name_file, "wb")
+        pickle.dump(probs, write_fcm)
+        write_fcm.close()
+
+        alphabet = fcm.getAlphabet()
+
+        write_alphabet = open("alpha" + "/" + name_file, "wb")
+        pickle.dump(alphabet, write_alphabet)
+        write_alphabet.close()
+
+        appearances = fcm.getAppearances()
+
+        write_appearances = open("appearances" + "/" + name_file, "wb")
+        pickle.dump(appearances, write_appearances)
+        write_appearances.close()
+
+    #make comparisons
+    lang = Lang(target, k, alpha, probs, alphabet, appearances)
+    #print("isLocate - ", isLocate)
+    num_bits, bits_list = lang.run(example, isLocate)
+    #print("Sum of bits: ", num_bits)
     
-    lang = Lang(target, k, alpha, probs, fcm.getAlphabet(), fcm.getAppearances())
-    num_bits = lang.run(example)
-    print("Sum of bits: ".format(num_bits))
+    bits_matrix.append([example_name, bits_list])
 
-    #FindLang
-    """lang_list = getRefs()
-    find = FindLang(lang_list, target, k, alpha)
-    lang = find.run()
-    print("\nLanguage Guess: {}".format(lang))
 
-    end = time.perf_counter()
-    print("Time elapsed: ",end-begin)"""
+def define_Theshold():
+    #print(bits_matrix)
 
-    # Generator
-    #generator(a, prio, 10000)
+    avr_values_list = []
 
-if __name__ == "__main__": #python3 src/main.py examples/gatsby.tst 3 0.1
+    for i in bits_matrix:
+        avr_values_list.append(statistics.mean(i[1]))
 
-    #example = None
+    #print(avr_values_list)
 
-    from os import listdir
-    from os.path import isfile, join
+    threshold = min(avr_values_list) * 1.15
+    #1.1 to pt_en
+    #print(threshold)
 
+    for i in bits_matrix:
+        lang = Lang(target, k, alpha, 1, 1, 1)
+        lang.calculate_langs(i[0], i[1], threshold)
+
+
+def find_Lang():
+
+    min_num_sum_bits = sum(bits_matrix[0][1])
+    best_ref_file = ""
+
+    for i in bits_matrix:
+
+        if sum(i[1]) < min_num_sum_bits:
+            min_num_sum_bits = sum(i[1])
+            best_ref_file = i[0]
+
+    print("best ref file - ", best_ref_file)
+
+
+
+if __name__ == "__main__": #python3 src/main.py examples/gatsby.txt 3 0.1
+
+    begin = time.time()
 
     refs_path = "refs"
-
     ref_files = listdir(refs_path)
-
-    print(ref_files)
 
     k = None
     alpha = None
     target = None
 
     try:
+
         target = argv[1]
         k = int(argv[2])
         alpha = float(argv[3])
 
+        isLocateExists = False
+
+        if argv[4] == "True":
+            isLocate = True
+            isLocateExists = True
+
+        elif argv[4] == "False":
+            isLocate = False
+            isLocateExists = True
+
+
+
     except Exception as err:
         print("Usage: python3 src/main.py refs/<reference file> <k> <alpha>")
     
-    if target and k and alpha:
+    if target and k and alpha and isLocateExists:
 
+        #make the process for all files
+        #print(refs_path)
         for example in ref_files:
-            print(example)
-            main("refs/" + example, target, k, alpha)
+            #print(example)
+
+            main("refs/" + example, target, k, alpha, isLocate)
     else:
         print("Usage: python3 src/main.py refs/<reference file> <k> <alpha>")
+    end = time.time()
+    #print(end - begin, " segundos - ")
+
+    if isLocate == True:
+
+        threshold = define_Theshold()
+
+    else:
+        find_Lang()
+
+        end2 = time.time()
+
+    print(end2 - begin, " segundos - ")
+
+
+
+
+
+
