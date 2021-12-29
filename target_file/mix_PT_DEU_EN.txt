@@ -128,3 +128,54 @@ Rückkehr feiern sie die Bescherung unter dem Christbaum. So nennt man die gegen
 Geschenke und die Gaben für die Kinder. Manchmal spielt jemand den Weihnachtsmann oder das
 Christkind, um den Kindern die Geschenke zu bringen. Außerdem gibt es für sie zu Weihnachten viele
 Süßigkeiten und Plätzchen.
+As any Scrabble player knows, it is much easier to come up with words
+that begin with a particular letter than to find words that have the same
+letter in the third position. This is true for every letter of the alphabet. We
+therefore expected respondents to exaggerate the frequency of letters
+appearing in the first position—even those letters (such as K, L, N, R, V) which in fact occur more frequently in the third position. Here again, the
+reliance on a heuristic produces a predictable bias in judgments. For
+example, I recently came to doubt my long-held impression that adultery is more common among politicians than among physicians or lawyers. I had
+even come up with explanations for that “fact,” including the aphrodisiac
+effect of power and the temptations of life away from home. I eventually
+realized that the transgressions of politicians are much more likely to be
+reported than the transgressions of lawyers and doctors. My intuitive
+impression could be due entirely to journalists’ choices of topics and to my
+reliance on the availability heuristic. Amos and I spent several years studying and documenting biases of
+intuitive thinking in various tasks—assigning probabilities to events,
+forecasting the future, assessing hypotheses, and estimating frequencies.
+In the fifth year of our collaboration, we presented our main findings in Science magazine, a publication read by scholars in many disciplines. The
+article (which is reproduced in full at the end of this book) was titled
+“Judgment Under Uncertainty: Heuristics and Biases.” It described the
+simplifying shortcuts of intuitive thinking and explained some 20 biases as manifestations of these heuristics—and also as demonstrations of the role
+of heuristics in judgment. Historians of science have often noted that at any given time scholars in
+a particular field tend to share basic re share assumptions about their
+subject. Social scientists are no exception; they rely on a view of human
+nature that provides the background of most discussions of specific
+behaviors but is rarely questioned. Social scientists in the 1970s broadly
+accepted two ideas about human nature. First, people are generally
+rational, and their thinking is normally sound. Second, emotions such as
+fear, affection, and hatred explain most of the occasions on which people
+depart from rationality. Our article challenged both assumptions without
+discussing them directly. We documented systematic errors in the thinking
+of normal people, and we traced these errors to the design of the machinery of cognition rather than to the corruption of thought by emotion. Our article attracted much more attention than we had expected, and it
+remains one of the most highly cited works in social science (more than
+three hundred scholarly articles referred to it in 2010). Scholars in other
+disciplines found it useful, and the ideas of heuristics and biases have
+been used productively in many fields, including medical diagnosis, legal
+judgment, intelligence analysis, philosophy, finance, statistics, and military
+strategy.
+For example, students of policy have noted that the availability heuristic
+helps explain why some issues are highly salient in the public’s mind while
+others are neglected. People tend to assess the relative importance of
+issues by the ease with which they are retrieved from memory—and this is
+largely determined by the extent of coverage in the media. Frequently mentioned topics populate the mind even as others slip away from
+awareness. In turn, what the media choose to report corresponds to their
+view of what is currently on the public’s mind. It is no accident that
+authoritarian regimes exert substantial pressure on independent media. Because public interest is most easily aroused by dramatic events and by
+celebrities, media feeding frenzies are common. For several weeks after Michael Jackson’s death, for example, it was virtually impossible to find a
+television channel reporting on another topic. In contrast, there is little
+coverage of critical but unexciting issues that provide less drama, such as
+declining educational standards or overinvestment of medical resources in
+the last year of life. (As I write this, I notice that my choice of “little-covered”
+examples was guided by availability. The topics I chose as examples are mentioned often; equally important issues that are less available did not
+come to my mind.

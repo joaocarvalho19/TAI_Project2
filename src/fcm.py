@@ -19,7 +19,7 @@ class FCM:
         #reads a .txt file
         file = open(text, "r", encoding="UTF-8")
         fileContent = file.read()
-        print(text, " - LEN: ", len(fileContent))
+        #print(text, " - LEN: ", len(fileContent))
         return fileContent
 
     def createAlphabet(self, fileContent):
